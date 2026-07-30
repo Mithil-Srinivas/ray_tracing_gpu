@@ -27,7 +27,7 @@ class metal{
 public:
     color albedo;
     real fuzz;
-    metal(const color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz) {}
+    metal(const color& albedo, real fuzz) : albedo(albedo), fuzz(fuzz) {}
 
     HD bool scatter(const ray& ray_in, const hit_record& rec, color& attenuation, ray& scattered, rng &rand) const  {
         vec3 reflected = reflect(ray_in.direction(), rec.normal);
@@ -46,13 +46,14 @@ class dielectric{
 
     HD bool scatter(const ray& ray_in, const hit_record& rec, color& attenuation, ray& scattered, rng &rand) const  {
         attenuation = color(1.0, 1.0, 1.0);
-        double ri = rec.front_face ? (1.0/ refraction_index) : refraction_index;
+        real ri = rec.front_face ? (1.0/ refraction_index) : refraction_index;
 
 
         vec3 unit_direction = unit_vector(ray_in.direction());
 
-        double cos_theta = std::fmin(dot(-unit_direction, rec.normal), 1.0);
-        double sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
+        real dot_val = dot(-unit_direction, rec.normal);
+        real cos_theta = (dot_val < 1.0f) ? dot_val : 1.0f;
+        real sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
 
         bool cannot_refract = ri * sin_theta > 1.0;
         vec3 direction;
@@ -73,7 +74,6 @@ class dielectric{
         auto r0 = (1 - refraction_index) / (1 + refraction_index);
         r0 = r0 * r0;
         return r0 + (1 - r0) * std::pow((1 - cosine), 5);
-
     }
 };
 
@@ -82,7 +82,7 @@ public:
     color albedo;
     diffuse_light(const color& emit) : albedo(emit) {}
 
-    color emitted(double u, double v, const point3& p) const {
+    HD color emitted(double u, double v, const point3& p) const {
         return albedo;
     }
 
@@ -100,5 +100,60 @@ public:
     }
 };
 
+struct materials
+{
+    lambertian *lambertian_mats = nullptr;
+    int lambertian_count;
+
+    metal *metal_mats = nullptr;
+    int metal_count;
+
+    dielectric *dielectric_mats = nullptr;
+    int dielectric_count;
+
+    diffuse_light *diffuse_light_mats = nullptr;
+    int diffuse_light_count;
+
+    isotropic *isotropic_mats = nullptr;
+    int isotropic_count;
+
+    materials(const std::vector<lambertian> *lambertians,
+        const std::vector<metal> *metals,
+        const std::vector<dielectric> *dielectrics,
+        const std::vector<diffuse_light> *diffuse_lights,
+        const std::vector<isotropic> *isotropics)
+    {
+        if (lambertians)
+        {
+            lambertian_count = lambertians->size();
+            cudaMalloc(&lambertian_mats, lambertian_count * sizeof(lambertian));
+            cudaMemcpy(lambertian_mats, lambertians->data(), lambertian_count * sizeof(lambertian), cudaMemcpyHostToDevice);
+        }
+        if (metals)
+        {
+            metal_count = metals->size();
+            cudaMalloc(&metal_mats, metal_count * sizeof(metal));
+            cudaMemcpy(metal_mats, metals->data(), metal_count * sizeof(metal), cudaMemcpyHostToDevice);
+        }
+        if (dielectrics)
+        {
+            dielectric_count = dielectrics->size();
+            cudaMalloc(&dielectric_mats, dielectric_count * sizeof(dielectric));
+            cudaMemcpy(dielectric_mats, dielectrics->data(), dielectric_count * sizeof(dielectric), cudaMemcpyHostToDevice);
+        }
+        if (diffuse_lights)
+        {
+            diffuse_light_count = diffuse_lights->size();
+            cudaMalloc(&diffuse_light_mats, diffuse_light_count * sizeof(diffuse_light));
+            cudaMemcpy(diffuse_light_mats, diffuse_lights->data(), diffuse_light_count * sizeof(diffuse_light), cudaMemcpyHostToDevice);
+        }
+        if (isotropics)
+        {
+            isotropic_count = isotropics->size();
+            cudaMalloc(&isotropic_mats, isotropic_count * sizeof(isotropic));
+            cudaMemcpy(isotropic_mats, isotropics->data(), isotropic_count * sizeof(isotropic), cudaMemcpyHostToDevice);
+        }
+    }
+};
 
 #endif //MATERIAL_H

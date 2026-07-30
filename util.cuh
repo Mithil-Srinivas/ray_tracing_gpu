@@ -80,8 +80,9 @@ class hit_record {
 public:
     point3 p;
     vec3 normal;
+    int mat_type;
     int mat_id;
-    double t;
+    real t;
     double u;
     double v;
     bool front_face;
@@ -91,5 +92,11 @@ public:
         normal = front_face ? outward_normal : -outward_normal;
     }
 };
+
+#define LAMBERTIAN 0
+#define METAL 1
+#define DIELECTRIC 2
+#define DIFFUSE_LIGHT 3
+#define ISOTROPIC 4
 
 #endif //UTIL_CUH

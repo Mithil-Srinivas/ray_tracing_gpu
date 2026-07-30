@@ -2,7 +2,6 @@
 #define VEC3_CUH
 
 #include <cmath>
-#include "util.cuh"
 
 struct alignas(16) vec3
 {
@@ -111,7 +110,11 @@ HD inline vec3 random_unit_vector(rng &rand) {
         auto p = vec3::random(rand, -1, 1);
         auto lensq = p.length_squared();
         if (1e-160 < lensq && lensq <= 1) {
-            return p / sqrt(lensq);
+            if constexpr (std::is_same_v<real, float>) {
+                return p * rsqrtf(lensq);
+            }else {
+                return p * rsqrt(lensq);
+            }
         }
     }
 }
@@ -137,7 +140,8 @@ HD inline vec3 reflect(const vec3& v, const vec3& n) {
 }
 
 HD inline vec3 refract(const vec3& uv, const vec3& n, real etai_over_etai) {
-    auto cos_theta = fmin(dot(-uv, n), 1.0);
+    auto dot_v = dot(-uv, n);
+    auto cos_theta = (dot_v < 1.0f) ? dot_v : 1.0f;
     vec3 r_out_perp = etai_over_etai * (uv + cos_theta * n);
     vec3 r_out_parallel = -std::sqrt(std::fabs(1 - r_out_perp.length_squared())) * n;
     return r_out_perp + r_out_parallel;

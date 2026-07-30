@@ -1,20 +1,27 @@
 #ifndef BVH_H
 #define BVH_H
 
-#include "aabb.h"
-#include "hittable.h"
-#include "hittable_list.h"
+#include "aabb.cuh"
+#include "hittable_list.cuh"
 #include <algorithm>
 
-class bvh_node : public hittable {
+class bvh{
     public:
+    std::vector<aabb> objects;
+
+
+
+
+};
+
+class bvh_node {
+    public:
+
     bvh_node(hittable_list& list) : bvh_node(list.objects, 0, list.objects.size()) {}
 
     bvh_node(std::vector<shared_ptr<hittable>>& objects, size_t start, size_t end){
         bbox = aabb::empty;
-        for (size_t object_index = start; object_index < end; object_index++){
-            bbox = aabb(bbox, objects[object_index]->bounding_box());
-        }
+
         int axis = bbox.longest_axis();
 
         auto comprator = (axis == 0) ? box_x_compare : (axis == 1) ? box_y_compare : box_z_compare;
@@ -29,10 +36,22 @@ class bvh_node : public hittable {
         }else{
             std::sort(std::begin(objects) + start, std::begin(objects) + end, comprator);
 
-            auto mid = start + object_span / 2;
+            auto mid = start +
             left = make_shared<bvh_node>(objects, start, mid);
             right = make_shared<bvh_node>(objects, mid, end);
         }
+    }
+
+    aabb list_box()
+    {
+        for (size_t object_index = start; object_index < end; object_index++){
+            bbox = aabb(bbox, objects[object_index]->bounding_box());
+        }
+    }
+
+    real min_cost(bvh_node& node_A, bvh_node& node_B)
+    {
+
     }
 
     bool hit(const ray& r, interval ray_t, hit_record& rec) const override{
@@ -46,8 +65,7 @@ class bvh_node : public hittable {
     }
 
     aabb bounding_box() const override { return bbox; }
-
-    private:
+    
     shared_ptr<hittable> left;
     shared_ptr<hittable> right;
     aabb bbox;

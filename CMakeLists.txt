@@ -16,10 +16,12 @@ add_executable(ray_tracing_gpu main.cu
         rtw_stb_image.cuh
         bvh.cuh
         camera.cuh
-        hittable_list.cuh)
+        hittable_list.cuh
+        quad.cuh
+        scenes.cuh)
 
 target_compile_options(ray_tracing_gpu PRIVATE
-    $<$<AND:$<COMPILE_LANGUAGE:CUDA>,$<CONFIG:Debug>>:-G>
+    $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo>
 )
 
 set_target_properties(ray_tracing_gpu PROPERTIES

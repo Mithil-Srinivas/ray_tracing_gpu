@@ -7,31 +7,21 @@
 #include "aabb.cuh"
 
 struct sphere {
-    ray center;
+    point3 center;
     real radius;
-    int mat_id; //TODO: Implement Material Index
+    int mat_type;
+    int mat_id;
     aabb bbox;
 
     // Stationary
-    sphere(const point3& static_center, double radius, int mat_id)
-        : center(static_center, vec3(0, 0, 0)), radius(std::fmax(0, radius)), mat_id(mat_id){
+    HD sphere(const point3& static_center, real radius, int mat_type, int mat_id)
+        : center(static_center), radius(fmax(0.0f, radius)), mat_type(mat_type), mat_id(mat_id){
         auto rvec = vec3(radius, radius, radius);
         bbox = aabb(static_center - rvec, static_center + rvec);
     }
 
-    // Moving
-    sphere(const point3& center1, const point3& center2,  double radius, int mat_id)
-    : center(center1, center2 - center1), radius(radius), mat_id(mat_id)
-    {
-        auto rvec = vec3(radius, radius, radius);
-        aabb box1(center.at(0) - rvec, center.at(0) + rvec);
-        aabb box2(center.at(1) - rvec, center.at(1) + rvec);
-        bbox = aabb(box1, box2);
-    }
-
     HD bool hit(const ray& r, interval ray_t, hit_record& rec) const  {
-        point3 current_center = r.at(r.time());
-        vec3 oc = current_center - r.origin();
+        vec3 oc = center - r.origin();
         auto a = r.direction().length_squared();
         auto h = dot(r.direction(), oc);
         auto c = oc.length_squared() - radius*radius;
@@ -53,10 +43,11 @@ struct sphere {
 
         rec.t = root;
         rec.p = r.at(rec.t);
-        vec3 outward_normal = (rec.p - current_center) / radius;
+        vec3 outward_normal = (rec.p - center) / radius;
         rec.set_face_normal(r, outward_normal);
         get_sphere_uv(outward_normal, rec.u, rec.v);
 
+        rec.mat_type = mat_type;
         rec.mat_id = mat_id;
 
         return true;

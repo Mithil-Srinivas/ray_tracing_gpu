@@ -34,14 +34,14 @@ class camera {
     // std::vector<color> framebuffer;
     // std::vector<Uint32> screenbuffer;
 
-    HD void image_write(int i, int j, vec3 *out, const hittable_list *world, lambertian *mat_arr, rng &rand) {
+    HD void image_write(int i, int j, vec3 *out, const hittable_list *world, materials *mat_arr, rng &rand) {
         color pixel_color(0, 0, 0);
         for (int sample = 0; sample < samples_per_pixel; sample++) {
             ray r = get_ray(i, j, rand);
             pixel_color += ray_color(r, max_depth, world, mat_arr, rand);
         }
 
-        out[j * image_width + i] = pixel_color;
+        out[j * image_width + i] = pixel_color * pixel_samples_scale;
         // screenbuffer[j * image_width + i] = convert_color(pixel_color * pixel_samples_scale);
         // text[id] += write_color(pixel_samples_scale * pixel_color);
     }
@@ -86,7 +86,7 @@ class camera {
         rendering = true;
     }
 
-    double pixel_samples_scale;
+    real pixel_samples_scale;
     point3 center;
     point3 pixel00_loc;
     vec3 pixel_delta_u;
@@ -97,7 +97,7 @@ class camera {
     int t_cols, t_rows;
     std::atomic<int> tile{0};
 
-    HD color ray_color(const ray& r, int depth, const hittable_list *world, lambertian *mat_arr, rng& rand) {
+    HD color ray_color(const ray& r, int depth, const hittable_list *world, materials *mat_arr, rng& rand) {
         if (depth <= 0) {
             return color(0, 0, 0);
         }
@@ -105,16 +105,56 @@ class camera {
 
         if (!world->hit(r, interval(0.001, infinity), rec))
             return background;
-        ray scattered;
+
         color attenuation;
-        // color color_from_emission = rec.mat->emitted(rec.u, rec.v, rec.p);
-        color color_from_emission = color{0, 0, 0};
+        color color_from_scattered{0, 0, 0};
+        color color_from_emission{0, 0, 0};
 
-        if (!mat_arr[rec.mat_id].scatter(r, rec,attenuation ,scattered, rand)) {
-            return color_from_emission;
+        switch (rec.mat_type)
+        {
+            case LAMBERTIAN:
+                {
+                    ray scattered;
+                    if (!mat_arr->lambertian_mats[rec.mat_id].scatter(r, rec,attenuation ,scattered, rand)) {
+                        return color_from_emission;
+                    }
+                    color_from_scattered = attenuation * ray_color(scattered, depth-1, world, mat_arr, rand);
+                    printf("%f %f %f\n", color_from_scattered.x(), color_from_scattered.y(), color_from_scattered.z());
+                    break;
+                }
+            case METAL :
+                {
+                    ray scattered;
+                    if (!mat_arr->metal_mats[rec.mat_id].scatter(r, rec,attenuation ,scattered, rand)) {
+                        return color_from_emission;
+                    }
+                    color_from_scattered = attenuation * ray_color(scattered, depth-1, world, mat_arr, rand);
+                    break;
+                }
+            case DIELECTRIC :
+                {
+                    ray scattered;
+                    if (!mat_arr->dielectric_mats[rec.mat_id].scatter(r, rec,attenuation ,scattered, rand)) {
+                        return color_from_emission;
+                    }
+                    color_from_scattered = attenuation * ray_color(scattered, depth-1, world, mat_arr, rand);
+                    break;
+                }
+            case DIFFUSE_LIGHT :
+                {
+                    color_from_emission = mat_arr->diffuse_light_mats[rec.mat_id].emitted(rec.u, rec.v, rec.p);
+                    break;
+                }
+            case ISOTROPIC :
+                {
+                    ray scattered;
+                    if (!mat_arr->isotropic_mats[rec.mat_id].scatter(r, rec,attenuation ,scattered, rand)) {
+                        return color_from_emission;
+                    }
+                    color_from_scattered = attenuation * ray_color(scattered, depth-1, world, mat_arr, rand);
+                    break;
+                }
         }
-
-        color color_from_scattered = attenuation * ray_color(scattered, depth-1, world, mat_arr, rand);
         return color_from_emission + color_from_scattered;
     }
 
