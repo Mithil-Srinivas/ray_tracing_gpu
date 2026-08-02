@@ -62,6 +62,11 @@ struct sphere {
         u = phi/(2*pi);
         v = theta / pi;
     }
+
+    vec3 abs_offset(const point3& p) const
+    {
+        return p - center;
+    }
 };
 
 #endif //SHAPES_H

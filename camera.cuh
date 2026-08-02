@@ -17,7 +17,7 @@ class camera {
     int image_width = 400;
     int image_height = 400;
     int samples_per_pixel = 10;
-    int max_depth = 10;
+    int max_depth = 20;
     color background = {0.0, 0.0, 0.0};
 
     real vfov = 90;
@@ -38,7 +38,7 @@ class camera {
         color pixel_color(0, 0, 0);
         for (int sample = 0; sample < samples_per_pixel; sample++) {
             ray r = get_ray(i, j, rand);
-            pixel_color += ray_color(r, max_depth, world, mat_arr, rand);
+            pixel_color += ray_color(r, world, mat_arr, rand);
         }
 
         out[j * image_width + i] = pixel_color * pixel_samples_scale;
@@ -97,65 +97,62 @@ class camera {
     int t_cols, t_rows;
     std::atomic<int> tile{0};
 
-    HD color ray_color(const ray& r, int depth, const hittable_list *world, materials *mat_arr, rng& rand) {
-        if (depth <= 0) {
-            return color(0, 0, 0);
-        }
-        hit_record rec;
+    HD color ray_color(const ray& r, const hittable_list *world, materials *mat_arr, rng& rand) {
+        color final_color;
+        color throughput{1, 1, 1};
+        ray current = r;
 
-        if (!world->hit(r, interval(0.001, infinity), rec))
-            return background;
-
-        color attenuation;
-        color color_from_scattered{0, 0, 0};
-        color color_from_emission{0, 0, 0};
-
-        switch (rec.mat_type)
+        for (int i = 0; i < max_depth; i++)
         {
+            hit_record rec;
+            ray scattered;
+
+            color attenuation;
+
+            if (!world->hit(current, interval(0.001, infinity), rec))
+                return throughput * background;
+
+            switch (rec.mat_type)
+            {
             case LAMBERTIAN:
                 {
-                    ray scattered;
-                    if (!mat_arr->lambertian_mats[rec.mat_id].scatter(r, rec,attenuation ,scattered, rand)) {
-                        return color_from_emission;
+                    if (!mat_arr->lambertian_mats[rec.mat_id].scatter(current, rec,attenuation ,scattered, rand)) {
+                        return final_color;
                     }
-                    color_from_scattered = attenuation * ray_color(scattered, depth-1, world, mat_arr, rand);
-                    printf("%f %f %f\n", color_from_scattered.x(), color_from_scattered.y(), color_from_scattered.z());
+
                     break;
                 }
             case METAL :
                 {
-                    ray scattered;
-                    if (!mat_arr->metal_mats[rec.mat_id].scatter(r, rec,attenuation ,scattered, rand)) {
-                        return color_from_emission;
+                    if (!mat_arr->metal_mats[rec.mat_id].scatter(current, rec,attenuation ,scattered, rand)) {
+                        return final_color;
                     }
-                    color_from_scattered = attenuation * ray_color(scattered, depth-1, world, mat_arr, rand);
                     break;
                 }
             case DIELECTRIC :
                 {
-                    ray scattered;
-                    if (!mat_arr->dielectric_mats[rec.mat_id].scatter(r, rec,attenuation ,scattered, rand)) {
-                        return color_from_emission;
+                    if (!mat_arr->dielectric_mats[rec.mat_id].scatter(current, rec,attenuation ,scattered, rand)) {
+                        return final_color;
                     }
-                    color_from_scattered = attenuation * ray_color(scattered, depth-1, world, mat_arr, rand);
                     break;
                 }
             case DIFFUSE_LIGHT :
                 {
-                    color_from_emission = mat_arr->diffuse_light_mats[rec.mat_id].emitted(rec.u, rec.v, rec.p);
+                    return throughput * mat_arr->diffuse_light_mats[rec.mat_id].emitted(rec.u, rec.v, rec.p);
                     break;
                 }
             case ISOTROPIC :
                 {
-                    ray scattered;
-                    if (!mat_arr->isotropic_mats[rec.mat_id].scatter(r, rec,attenuation ,scattered, rand)) {
-                        return color_from_emission;
+                    if (!mat_arr->isotropic_mats[rec.mat_id].scatter(current, rec,attenuation ,scattered, rand)) {
+                        return final_color;
                     }
-                    color_from_scattered = attenuation * ray_color(scattered, depth-1, world, mat_arr, rand);
                     break;
                 }
+            }
+            throughput = throughput * attenuation;
+            current = scattered;
         }
-        return color_from_emission + color_from_scattered;
+        return final_color;
     }
 
     HD ray get_ray(int i, int j, rng &rand) const {

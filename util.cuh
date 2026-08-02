@@ -63,7 +63,7 @@ struct xorshift32 {
 
     HD real next_real(real min, real max)
     {
-        return min + max * next_real();
+        return min + (max - min) * next_real();
     }
 };
 
@@ -98,5 +98,9 @@ public:
 #define DIELECTRIC 2
 #define DIFFUSE_LIGHT 3
 #define ISOTROPIC 4
+
+#define SPHERE 0
+#define QUAD 1
+#define TRI 2
 
 #endif //UTIL_CUH

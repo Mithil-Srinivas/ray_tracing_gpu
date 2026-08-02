@@ -21,6 +21,7 @@ add_executable(ray_tracing_gpu main.cu
         scenes.cuh)
 
 target_compile_options(ray_tracing_gpu PRIVATE
+#        $<$<AND:$<COMPILE_LANGUAGE:CUDA>,$<CONFIG:Debug>>:-G>
     $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo>
 )
 

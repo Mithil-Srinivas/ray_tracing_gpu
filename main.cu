@@ -41,7 +41,7 @@ int main(void)
     static materials *materials_arr;
     cudaMallocManaged(&materials_arr, sizeof(materials));
 
-    cornell(cam, width, height, world, materials_arr, rando);
+    bouncing_instances(cam, width, height, world, materials_arr, rando);
 
     dim3 block(16, 16);
     dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
