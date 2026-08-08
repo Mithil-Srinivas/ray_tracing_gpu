@@ -2,19 +2,24 @@
 #define AABB_H
 #include "util.cuh"
 
+
+//TODO: Remove array of primitives and use sorted objects instead
 struct aabb
 {
     interval x, y, z;
+    int* primitive_type;
+    int* primitive_id;
+    uint32_t num_primitives;
 
-    HD aabb() {}
+    aabb() {}
 
-    HD aabb(const interval& x, const interval& y, const interval& z)
+    aabb(const interval& x, const interval& y, const interval& z)
         : x(x), y(y), z(z)
     {
         pad_to_minimums();
     }
 
-    HD aabb(const point3& a, const point3& b) {
+    aabb(const point3& a, const point3& b) {
         x = (a[0] <= b[0]) ? interval(a[0], b[0]) : interval(b[0], a[0]);
         y = (a[1] <= b[1]) ? interval(a[1], b[1]) : interval(b[1], a[1]);
         z = (a[2] <= b[2]) ? interval(a[2], b[2]) : interval(b[2], a[2]);
@@ -22,11 +27,13 @@ struct aabb
         pad_to_minimums();
     }
 
-    HD aabb(const aabb& box0, const aabb& box1){
+    aabb(const aabb& box0, const aabb& box1){
         x = interval(box0.x, box1.x);
         y = interval(box0.y, box1.y);
         z = interval(box0.z, box1.z);
     }
+
+    static const aabb empty, universe;
 
     HD const interval& axis_interval(int n) const{
         if (n == 1) return y;
@@ -65,13 +72,34 @@ struct aabb
         return y.size() > z.size() ? 1 : 2;
     }
 
-    static const aabb empty, universe;
-
     HD void pad_to_minimums(){
         real delta = 0.0001;
         if (x.size() < delta) x = x.expand(delta);
         if (y.size() < delta) y = y.expand(delta);
         if (z.size() < delta) z = z.expand(delta);
+    }
+
+    real surface_area() const
+    {
+        real w = abs(x.size());
+        real h = abs(y.size());
+        real b = abs(z.size());
+        return 2*(w * h + h * b + b * w);
+    }
+
+    real centroid_x() const
+    {
+        return x.size()/2;
+    }
+
+    real centroid_y() const
+    {
+        return y.size()/2;
+    }
+
+    real centroid_z() const
+    {
+        return z.size()/2;
     }
 };
 
@@ -79,7 +107,7 @@ inline const aabb aabb::empty = aabb(interval::empty, interval::empty, interval:
 inline const aabb aabb::universe = aabb(interval::universe, interval::universe, interval::universe);
 
 HD inline aabb operator+ (const aabb& bbox, const vec3& offset) {
-    return aabb(bbox.x + offset.x(), bbox.y + offset.y(), bbox.z + offset.z());
+    return {bbox.x + offset.x(), bbox.y + offset.y(), bbox.z + offset.z()};
 }
 
 HD inline aabb operator+ (const vec3& offset, const aabb& bbox) {

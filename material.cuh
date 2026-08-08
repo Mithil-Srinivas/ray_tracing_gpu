@@ -40,20 +40,21 @@ public:
 
 class dielectric{
     public:
-    double refraction_index;
+    real refraction_index;
 
-    dielectric(double refraction_index) : refraction_index(refraction_index) {}
+    dielectric(real refraction_index) : refraction_index(refraction_index) {}
 
     HD bool scatter(const ray& ray_in, const hit_record& rec, color& attenuation, ray& scattered, rng &rand) const  {
         attenuation = color(1.0, 1.0, 1.0);
-        real ri = rec.front_face ? (1.0/ refraction_index) : refraction_index;
+        real ri = rec.front_face ? (1.0f/ refraction_index) : refraction_index;
 
 
         vec3 unit_direction = unit_vector(ray_in.direction());
 
         real dot_val = dot(-unit_direction, rec.normal);
         real cos_theta = (dot_val < 1.0f) ? dot_val : 1.0f;
-        real sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
+        real sin_theta = 0;
+        sin_theta = sqrt(1.0f - cos_theta * cos_theta);
 
         bool cannot_refract = ri * sin_theta > 1.0;
         vec3 direction;
@@ -69,11 +70,11 @@ class dielectric{
         return true;
     }
 
-    HD static double reflectance(double cosine, double refraction_index) {
+    HD static real reflectance(real cosine, real refraction_index) {
 
         auto r0 = (1 - refraction_index) / (1 + refraction_index);
         r0 = r0 * r0;
-        return r0 + (1 - r0) * std::pow((1 - cosine), 5);
+        return r0 + (1 - r0) * pow(1.0f - cosine, 5.0f);
     }
 };
 
@@ -103,19 +104,19 @@ public:
 struct materials
 {
     lambertian *lambertian_mats = nullptr;
-    int lambertian_count;
+    uint32_t lambertian_count;
 
     metal *metal_mats = nullptr;
-    int metal_count;
+    uint32_t metal_count;
 
     dielectric *dielectric_mats = nullptr;
-    int dielectric_count;
+    uint32_t dielectric_count;
 
     diffuse_light *diffuse_light_mats = nullptr;
-    int diffuse_light_count;
+    uint32_t diffuse_light_count;
 
     isotropic *isotropic_mats = nullptr;
-    int isotropic_count;
+    uint32_t isotropic_count;
 
     materials(const std::vector<lambertian> *lambertians,
         const std::vector<metal> *metals,

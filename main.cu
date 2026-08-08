@@ -1,11 +1,12 @@
 #include <iostream>
 
+#include "bvh.cuh"
 #include "camera.cuh"
 #include "color.cuh"
 #include "scenes.cuh"
 #include "util.cuh"
 
-__global__ void grad(vec3* out, int width, int height, hittable_list *world, materials *mat_arr, camera *cam)
+__global__ void grad(vec3* out, int width, int height, hit_method *world, materials *mat_arr, camera *cam)
 {
     int x = ((blockIdx.x * blockDim.x) + threadIdx.x);
     int y = ((blockIdx.y * blockDim.y) + threadIdx.y);
@@ -34,14 +35,13 @@ int main(void)
     cudaMallocManaged(&x, width * height * sizeof(vec3));
     cudaMallocManaged(&cam, sizeof(camera));
 
-
-    static hittable_list *world;
-    cudaMallocManaged(&world, sizeof(hittable_list));
+    static hit_method *world;
+    cudaMallocManaged(&world, sizeof(hit_method));
 
     static materials *materials_arr;
     cudaMallocManaged(&materials_arr, sizeof(materials));
 
-    bouncing_instances(cam, width, height, world, materials_arr, rando);
+    bvh_test<hit_method>(cam, width, height, world, materials_arr, rando);
 
     dim3 block(16, 16);
     dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
@@ -51,6 +51,7 @@ int main(void)
     cudaEventCreate(&stop);
 
     cudaEventRecord(start);
+    std::cout << "Kernel Started" << std::endl;
     grad<<<grid, block>>>(x, width, height, world, materials_arr, cam);
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);

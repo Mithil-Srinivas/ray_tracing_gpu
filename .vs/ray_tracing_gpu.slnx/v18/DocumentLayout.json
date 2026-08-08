@@ -3,24 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\shapes.cuh||{8B382828-6202-11D1-8870-0000F87579D2}|",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:shapes.cuh||{8B382828-6202-11D1-8870-0000F87579D2}|"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\hittable_list.cuh||{8B382828-6202-11D1-8870-0000F87579D2}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hittable_list.cuh||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\quad.cuh||{8B382828-6202-11D1-8870-0000F87579D2}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:quad.cuh||{8B382828-6202-11D1-8870-0000F87579D2}|"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\vec3.cuh||{8B382828-6202-11D1-8870-0000F87579D2}|",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:vec3.cuh||{8B382828-6202-11D1-8870-0000F87579D2}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\scenes.cuh||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:scenes.cuh||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\camera.cuh||{8B382828-6202-11D1-8870-0000F87579D2}|",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:camera.cuh||{8B382828-6202-11D1-8870-0000F87579D2}|"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\main.cu||{8B382828-6202-11D1-8870-0000F87579D2}",
@@ -29,6 +21,18 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\CMakeLists.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:CMakeLists.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\scenes.cuh||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:scenes.cuh||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\shapes.cuh||{8B382828-6202-11D1-8870-0000F87579D2}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:shapes.cuh||{8B382828-6202-11D1-8870-0000F87579D2}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\camera.cuh||{8B382828-6202-11D1-8870-0000F87579D2}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:camera.cuh||{8B382828-6202-11D1-8870-0000F87579D2}|"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\util.cuh||{8B382828-6202-11D1-8870-0000F87579D2}|",
@@ -50,24 +54,37 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
+              "Title": "quad.cuh",
+              "DocumentMoniker": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\quad.cuh",
+              "RelativeDocumentMoniker": "quad.cuh",
+              "ToolTip": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\quad.cuh",
+              "RelativeToolTip": "quad.cuh",
+              "ViewState": "AgIAADIAAAAAAAAAAAAAwEIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-08-02T21:12:25.444Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "scenes.cuh",
               "DocumentMoniker": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\scenes.cuh",
               "RelativeDocumentMoniker": "scenes.cuh",
               "ToolTip": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\scenes.cuh",
               "RelativeToolTip": "scenes.cuh",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAIEAAAAAAAAAAAAAAC8AAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2026-08-01T16:07:35.722Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 6,
               "Title": "shapes.cuh",
               "DocumentMoniker": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\shapes.cuh",
               "RelativeDocumentMoniker": "shapes.cuh",
@@ -80,20 +97,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "hittable_list.cuh",
               "DocumentMoniker": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\hittable_list.cuh",
               "RelativeDocumentMoniker": "hittable_list.cuh",
               "ToolTip": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\hittable_list.cuh",
               "RelativeToolTip": "hittable_list.cuh",
-              "ViewState": "AgIAAFMAAAAAAAAAAAAAwGMAAAA4AAAAAAAAAA==",
+              "ViewState": "AgIAAGQAAAAAAAAAAAAAwHIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2026-08-01T15:54:50.937Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "interval.cuh",
               "DocumentMoniker": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\interval.cuh",
               "RelativeDocumentMoniker": "interval.cuh",
@@ -106,7 +123,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": "camera.cuh",
               "DocumentMoniker": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\camera.cuh",
               "RelativeDocumentMoniker": "camera.cuh",
@@ -119,7 +136,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "util.cuh",
               "DocumentMoniker": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\util.cuh",
               "RelativeDocumentMoniker": "util.cuh",
@@ -132,7 +149,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "material.cuh",
               "DocumentMoniker": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\material.cuh",
               "RelativeDocumentMoniker": "material.cuh",
@@ -151,33 +168,33 @@
               "RelativeDocumentMoniker": "vec3.cuh",
               "ToolTip": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\vec3.cuh",
               "RelativeToolTip": "vec3.cuh",
-              "ViewState": "AgIAADsAAAAAAAAAAAAAwEsAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAEwAAAAAAAAAAAAAwFwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2026-07-18T14:56:37.361Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 3,
               "Title": "main.cu",
               "DocumentMoniker": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\main.cu",
               "RelativeDocumentMoniker": "main.cu",
               "ToolTip": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\main.cu",
               "RelativeToolTip": "main.cu",
-              "ViewState": "AgIAABsAAAAAAAAAAAAAACYAAAAvAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2026-07-18T14:56:04.775Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 4,
               "Title": "CMakeLists.txt",
               "DocumentMoniker": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\CMakeLists.txt",
               "RelativeDocumentMoniker": "CMakeLists.txt",
               "ToolTip": "C:\\Users\\mithi\\CLionProjects\\ray_tracing_gpu\\CMakeLists.txt",
               "RelativeToolTip": "CMakeLists.txt",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
               "WhenOpened": "2026-07-18T14:55:31.984Z",
               "EditorCaption": ""

@@ -15,7 +15,7 @@ using color = vec3;
 
 inline real linear_to_gamma(real linear_component) {
     if (linear_component > 0) {
-        return std::sqrt(linear_component);
+        return sqrt(linear_component);
     }
     return 0;
 }

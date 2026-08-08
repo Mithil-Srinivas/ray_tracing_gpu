@@ -5,8 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <array>
-
+#include "util.cuh"
 
 class quad{
 public:
@@ -15,9 +14,8 @@ public:
     vec3 w;
     int mat_type;
     int mat_id;
-    aabb bbox;
     vec3 normal;
-    double D;
+    real D;
 
 
     quad(const point3& Q, const vec3& u, const vec3& v, int mat_type, int mat_id) : Q(Q), u(u), v(v), mat_type(mat_type), mat_id(mat_id)
@@ -26,27 +24,24 @@ public:
         normal = unit_vector(n);
         D = dot(normal, Q);
         w = n / dot(n, n);
-
-        set_bounding_box();
     }
 
-    HD void set_bounding_box()
+    aabb set_bounding_box() const
     {
         auto bbox_diagonal1 = aabb(Q, Q + u + v);
         auto bbox_diagonal2 = aabb(Q + u, Q + v);
-        bbox = aabb(bbox_diagonal1, bbox_diagonal2);
-    }
 
-    HD aabb bounding_box() const { return bbox; };
+        return aabb(bbox_diagonal1, bbox_diagonal2);
+    }
 
     HD bool hit(const ray& r, interval ray_t, hit_record& rec) const
     {
-        auto denom = dot(normal, r.direction());
+        real denom = dot(normal, r.direction());
 
         if (std::fabs(denom) < 1e-8)
             return false;
 
-        auto t = (D - dot(normal, r.origin())) / denom;
+        real t = (D - dot(normal, r.origin())) / denom;
         if (!ray_t.contains(t))
             return false;
 
@@ -67,7 +62,7 @@ public:
         return true;
     }
 
-    HD bool is_interior(double a, double b, hit_record& rec) const{
+    HD bool is_interior(real a, real b, hit_record& rec) const{
         interval unit_interval = interval(0, 1);
 
         if (!unit_interval.contains(a) || !unit_interval.contains(b))
@@ -105,12 +100,14 @@ class tri{
     point3 a, b, c;
     int mat_type;
     int mat_id;
-    aabb bbox;
 
-    tri(const point3& a, const point3& b, const point3& c, const int mat_type, const int mat_id) : a(a), b(b), c(c), mat_type(mat_type), mat_id(mat_id) {
+    tri(const point3& a, const point3& b, const point3& c, const int mat_type, const int mat_id) : a(a), b(b), c(c), mat_type(mat_type), mat_id(mat_id) {}
+
+    aabb bounding_box()
+    {
         aabb b1 = aabb(a, b);
         aabb b2 = aabb(b, c);
-        bbox = aabb(b1, b2);
+        return {b1, b2};
     }
 
     HD bool hit(const ray& r, interval ray_t, hit_record& rec) const {
@@ -119,19 +116,19 @@ class tri{
         point3 e2 = c - a;
 
         auto P = cross(r.direction(), e2);
-        double det = dot(e1, P);
-        double inv_det = 1.0 / det;
+        real det = dot(e1, P);
+        real inv_det = 1.0f / det;
         if (std::fabs(det) < 1e-8)
             return false;
 
-        double u = dot(T, P) * inv_det;
+        real u = dot(T, P) * inv_det;
         auto Q = cross(T, e1);
-        double v = dot(r.direction(), Q) * inv_det;
+        real v = dot(r.direction(), Q) * inv_det;
 
         if (!is_interior(u, v, rec))
             return false;
 
-        double t = dot(e2, Q) * inv_det;
+        real t = dot(e2, Q) * inv_det;
         if (!ray_t.contains(t))
             return false;
 
@@ -144,9 +141,7 @@ class tri{
         return true;
     }
 
-    aabb bounding_box() const { return bbox; };
-
-    HD bool is_interior(double a, double b, hit_record& rec) const{
+    HD bool is_interior(real a, real b, hit_record& rec) const{
         interval unit_interval = interval(0, 1);
 
         if (!unit_interval.contains(a) || !unit_interval.contains(b) || !unit_interval.contains(a+b))
@@ -158,7 +153,7 @@ class tri{
     }
 };
 
-std::vector<tri> obj(std::string obj_file, const int mat_type, const int mat_id, double scale = 1) {
+std::vector<tri> obj(const std::string& obj_file, const int mat_type, const int mat_id, real scale = 1) {
     std::vector<point3> pts;
     std::vector<tri> object;
 
@@ -174,7 +169,7 @@ std::vector<tri> obj(std::string obj_file, const int mat_type, const int mat_id,
         std::string prefix;
         ss >> prefix;
         if (prefix == "v") {
-            double x, y, z;
+            real x, y, z;
             ss >> x >> y >> z;
             point3 p(x, y, z);
             p = p*scale;
@@ -192,31 +187,21 @@ std::vector<tri> obj(std::string obj_file, const int mat_type, const int mat_id,
     }
     return object;
 }
-//
-// template <typename T> class translate {
-//     public:
-//     translate(T &object, const vec3& offset) : object(object), offset(offset) {
-//         bbox = object->bounding_box() + offset;
-//     }
-//
-//     HD bool hit(const ray& r, interval ray_t, hit_record& rec) const {
-//         ray offset_r(r.origin() - offset, r.direction(), r.time());
-//
-//         if (!object->hit(offset_r, ray_t, rec))
-//             return false;
-//
-//         rec.p += offset;
-//
-//         return true;
-//     }
-//
-//     HD aabb bounding_box() const {return bbox;}
-//
-//     T object;
-//     vec3 offset;
-//     aabb bbox;
-// };
-//
+
+
+struct instance
+{
+    int primitive_id;
+    vec3 offset;
+    int mat_type = -1;
+    int mat_id = -1;
+
+    instance(int primitive_id, const vec3 &offset) : primitive_id(primitive_id), offset(offset){}
+
+    instance(int primitive_id, const vec3 &offset, int mat_type, int mat_id) : primitive_id(primitive_id), offset(offset), mat_id(mat_id), mat_type(mat_type) {}
+};
+
+
 // template <typename T> class rotate_y {
 //     public:
 //     rotate_y(T &object, double angle) : object(object) {

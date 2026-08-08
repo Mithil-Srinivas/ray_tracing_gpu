@@ -37,7 +37,7 @@ struct alignas(16) vec3
     }
 
     HD real length() const {
-        return std::sqrt(length_squared());
+        return sqrt(length_squared());
     }
 
     HD real length_squared() const {
@@ -54,7 +54,7 @@ struct alignas(16) vec3
 
     HD bool near_zero() const {
         auto s = 1e-8;
-        return (std::fabs(e[0]) < s) && (std::fabs(e[1]) < s) && (std::fabs(e[2]) < s);
+        return (fabs(e[0]) < s) && (fabs(e[1]) < s) && (fabs(e[2]) < s);
     }
 
     HD vec3 const_div(real a, real b, real c) const {
@@ -110,11 +110,7 @@ HD inline vec3 random_unit_vector(rng &rand) {
         auto p = vec3::random(rand, -1, 1);
         auto lensq = p.length_squared();
         if (1e-160 < lensq && lensq <= 1) {
-            if constexpr (std::is_same_v<real, float>) {
-                return p * rsqrtf(lensq);
-            }else {
-                return p * rsqrt(lensq);
-            }
+            return p * rsqrt(lensq);
         }
     }
 }
@@ -143,7 +139,7 @@ HD inline vec3 refract(const vec3& uv, const vec3& n, real etai_over_etai) {
     auto dot_v = dot(-uv, n);
     auto cos_theta = (dot_v < 1.0f) ? dot_v : 1.0f;
     vec3 r_out_perp = etai_over_etai * (uv + cos_theta * n);
-    vec3 r_out_parallel = -std::sqrt(std::fabs(1 - r_out_perp.length_squared())) * n;
+    vec3 r_out_parallel = -sqrt(fabs(1 - r_out_perp.length_squared())) * n;
     return r_out_perp + r_out_parallel;
 }
 

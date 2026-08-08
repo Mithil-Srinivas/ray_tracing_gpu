@@ -9,7 +9,6 @@
 #include "material.cuh"
 
 //TODO: Needs a lot of work
-//NOTE: Only Lambertian for now
 
 class camera {
     public:
@@ -34,7 +33,7 @@ class camera {
     // std::vector<color> framebuffer;
     // std::vector<Uint32> screenbuffer;
 
-    HD void image_write(int i, int j, vec3 *out, const hittable_list *world, materials *mat_arr, rng &rand) {
+    HD void image_write(int i, int j, vec3 *out, const hit_method *world, materials *mat_arr, rng &rand) {
         color pixel_color(0, 0, 0);
         for (int sample = 0; sample < samples_per_pixel; sample++) {
             ray r = get_ray(i, j, rand);
@@ -50,7 +49,7 @@ class camera {
         // image_height = int(image_width / aspect_ratio);
         // image_height = (image_height < 1) ? 1 : image_height;
 
-        pixel_samples_scale = 1.0 / samples_per_pixel;
+        pixel_samples_scale = 1.0f / samples_per_pixel;
 
         center = lookfrom;
 
@@ -97,7 +96,7 @@ class camera {
     int t_cols, t_rows;
     std::atomic<int> tile{0};
 
-    HD color ray_color(const ray& r, const hittable_list *world, materials *mat_arr, rng& rand) {
+    HD color ray_color(const ray& r, const hit_method *world, materials *mat_arr, rng& rand) {
         color final_color;
         color throughput{1, 1, 1};
         ray current = r;

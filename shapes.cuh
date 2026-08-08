@@ -1,8 +1,6 @@
 #ifndef SHAPES_H
 #define SHAPES_H
 
-#include <utility>
-
 #include "util.cuh"
 #include "aabb.cuh"
 
@@ -11,13 +9,16 @@ struct sphere {
     real radius;
     int mat_type;
     int mat_id;
-    aabb bbox;
-
     // Stationary
-    HD sphere(const point3& static_center, real radius, int mat_type, int mat_id)
+    sphere(const point3& static_center, real radius, int mat_type, int mat_id)
         : center(static_center), radius(fmax(0.0f, radius)), mat_type(mat_type), mat_id(mat_id){
+
+    }
+
+    aabb bounding_box() const
+    {
         auto rvec = vec3(radius, radius, radius);
-        bbox = aabb(static_center - rvec, static_center + rvec);
+        return {center - rvec, center + rvec};
     }
 
     HD bool hit(const ray& r, interval ray_t, hit_record& rec) const  {
@@ -31,7 +32,7 @@ struct sphere {
             return false;
         }
 
-        auto sqrtd = std::sqrt(discriminant);
+        auto sqrtd = sqrt(discriminant);
 
         auto root = (h - sqrtd) / a;
         if (!ray_t.surrounds(root)) {
@@ -52,8 +53,6 @@ struct sphere {
 
         return true;
     }
-
-    HD aabb bounding_box() const {return bbox;};
 
     HD static void get_sphere_uv(const point3& p, double& u, double& v){
         auto theta = std::acos(-p.y());

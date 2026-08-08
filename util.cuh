@@ -75,6 +75,7 @@ using rng = xorshift32;
 #include "ray.cuh"
 #include "interval.cuh"
 #include "color.cuh"
+#include <vector>
 
 class hit_record {
 public:
