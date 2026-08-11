@@ -2,76 +2,66 @@
 #define SCENES_CUH
 #include "hittable_list.cuh"
 #include "material.cuh"
-//
-// void bouncing_spheres(camera *cam, int width, int height, hittable_list *world, materials *materials_arr, rng &rando)
-// {
-//     new (cam) camera();
-//
-//     cam->background = color(0.7, 0.8, 1.0);
-//     cam->samples_per_pixel = 1;
-//     cam->image_width = width;
-//     cam->image_height = height;
-//     cam->lookfrom = point3(13,2,3);
-//     cam->lookat   = point3(0,0,-1);
-//     cam->vfov     = 20;
-//     cam->initialize();
-//
-//     std::vector<lambertian> lambertians;
-//     std::vector<metal> metals;
-//     std::vector<dielectric> dielectrics;
-//     std::vector<sphere> spheres;
-//
-//     lambertians.emplace_back(color(0.2, 0.3, 0.1));
-//     spheres.emplace_back(point3(0, -1000, 0), 1000.0f, LAMBERTIAN, 0);
-//
-//     lambertians.emplace_back(color(0.7, 0.6, 0.5));
-//     spheres.emplace_back(point3(-4, 1, 0), 1.0, LAMBERTIAN, 1);
-//
-//     dielectrics.emplace_back(1.5);
-//     spheres.emplace_back(point3(0, 1, 0), 1.0, DIELECTRIC, 0);
-//
-//     metals.emplace_back(color(0.7, 0.6, 0.5), 0.0);
-//     spheres.emplace_back(point3(4, 1, 0), 1.0, METAL, 0);
-//
-//     for (int a = -11; a < 11; a++) {
-//         for (int b = -11; b < 11; b++) {
-//             auto choose_mat = rando.next_real();
-//             point3 center(static_cast<real>(a) + 0.9f * rando.next_real(), 0.2f,  static_cast<real>(b) + 0.9f * rando.next_real());
-//             if ((center - point3(4, 0.2, 0)).length() > 0.9) {
-//                 if (choose_mat < 0.8)
-//                 {
-//                     //diffuse
-//                     auto albedo = color::random(rando) * color::random(rando);
-//                     lambertians.emplace_back(albedo);
-//                     spheres.emplace_back(center, 0.2f, LAMBERTIAN, lambertians.size()-1);
-//                 }else if (choose_mat < 0.95)
-//                 {
-//                     //metal
-//                     auto albedo = color::random(rando) * color::random(rando);
-//                     auto fuzz = rando.next_real(0, 1);
-//                     metals.emplace_back(albedo, fuzz);
-//                     spheres.emplace_back(center, 0.2, METAL, metals.size()-1);
-//                 }else
-//                 {
-//                     //glass
-//                     dielectrics.emplace_back(1.5);
-//                     spheres.emplace_back(center, 0.2, DIELECTRIC, dielectrics.size()-1);
-//                 }
-//             }
-//         }
-//     }
-//
-//     // printf("%d %d", spheres.size(), materials.size());
-//
-//     primitives *objects;
-//     cudaMallocManaged(&objects, sizeof(primitives));
-//
-//     new (objects) primitives(&spheres, nullptr, nullptr, nullptr);
-//
-//     new (world) hittable_list(objects);
-//
-//     new (materials_arr) materials(&lambertians, &metals, &dielectrics, nullptr, nullptr);
-// }
+#include "scene_builder.cuh"
+
+void bouncing_spheres(camera *cam, int width, int height, hit_method *world, materials *materials_arr, rng &rando)
+{
+    new (cam) camera();
+
+    cam->background = color(0.7, 0.8, 1.0);
+    cam->samples_per_pixel = 1;
+    cam->image_width = width;
+    cam->image_height = height;
+    cam->lookfrom = point3(13,2,3);
+    cam->lookat   = point3(0,0,0);
+    cam->vfov     = 20;
+    cam->initialize();
+
+    scene_builder scene;
+
+    scene.add_mat_lamb(color(0.2, 0.3, 0.1));
+    scene.add_sphere(point3(0, -1000, 0), 1000.0f, LAMBERTIAN);
+
+    scene.add_mat_lamb(color(0.7, 0.6, 0.5));
+    scene.add_sphere(point3(-4, 1, 0), 1.0, LAMBERTIAN);
+
+    scene.add_mat_die(1.5);
+    scene.add_sphere(point3(0, 1, 0), 1.0, DIELECTRIC);
+
+    scene.add_mat_metal(color(0.7, 0.6, 0.5), 0.0);
+    scene.add_sphere(point3(4, 1, 0), 1.0, METAL);
+
+    for (int a = -11; a < 11; a++) {
+        for (int b = -11; b < 11; b++) {
+            auto choose_mat = rando.next_real();
+            point3 center(static_cast<real>(a) + 0.9f * rando.next_real(), 0.2f,  static_cast<real>(b) + 0.9f * rando.next_real());
+            if ((center - point3(4, 0.2, 0)).length() > 0.9) {
+                if (choose_mat < 0.8)
+                {
+                    //diffuse
+                    auto albedo = color::random(rando) * color::random(rando);
+                    scene.add_mat_lamb(albedo);
+                    scene.add_sphere(center, 0.2f, LAMBERTIAN);
+                }else if (choose_mat < 0.95)
+                {
+                    //metal
+                    auto albedo = color::random(rando) * color::random(rando);
+                    auto fuzz = rando.next_real(0, 1);
+                    scene.add_mat_metal(albedo, fuzz);
+                    scene.add_sphere(center, 0.2, METAL);
+                }else
+                {
+                    //glass
+                    scene.add_mat_die(1.5);
+                    scene.add_sphere(center, 0.2, DIELECTRIC);
+                }
+            }
+        }
+    }
+
+    scene.build<hit_method>(world, materials_arr);
+}
+
 //
 // void cornell(camera *cam, int width, int height, hittable_list *world,materials *materials_arr, rng &rando)
 // {
@@ -312,8 +302,7 @@
 // }
 
 
-template <typename T>
-void bvh_test(camera *cam, int width, int height, T *world, materials *materials_arr, rng &rando)
+void bvh_test(camera *cam, int width, int height, hit_method *world, materials *materials_arr, rng &rando)
 {
     new (cam) camera();
 
@@ -322,56 +311,24 @@ void bvh_test(camera *cam, int width, int height, T *world, materials *materials
     cam->image_width = width;
     cam->image_height = height;
     cam->lookfrom = point3(13,2,3);
-    cam->lookat   = point3(0,0,-1);
+    cam->lookat   = point3(0,0,0);
     cam->vfov     = 20;
     cam->initialize();
 
+    scene_builder scene;
 
-    lambertians.emplace_back(color(0.2, 0.3, 0.1));
-    spheres.emplace_back(point3(0, -1000, 0), 1000.0f, LAMBERTIAN, 0);
-    sphere_bboxes.push_back(spheres.back().bounding_box());
-    sphere_bboxes.back().primitive_type = new int(0);
-    sphere_bboxes.back().primitive_id = new int;
-    *(sphere_bboxes.back().primitive_id) = sphere_bboxes.size()-1;
+    scene.add_mat_lamb(color(0.2, 0.3, 0.1));
+    scene.add_sphere(point3(0, -1000, 0), 1000.0f, LAMBERTIAN);
 
-    lambertians.emplace_back(color(0.7, 0.6, 0.5));
-    spheres.emplace_back(point3(-4, 1, 0), 1.0, LAMBERTIAN, 1);
-    sphere_bboxes.push_back(spheres.back().bounding_box());
-    sphere_bboxes.back().primitive_type = new int(0);
-    sphere_bboxes.back().primitive_id = new int;
-    *sphere_bboxes.back().primitive_id = sphere_bboxes.size()-1;
+    scene.add_mat_lamb(color(0.7, 0.6, 0.5));
+    scene.add_sphere(point3(-4, 1, 0), 1.0, LAMBERTIAN);
 
-    dielectrics.emplace_back(1.5);
-    spheres.emplace_back(point3(0, 1, 0), 1.0, DIELECTRIC, 0);
-    sphere_bboxes.push_back(spheres.back().bounding_box());
-    sphere_bboxes.back().primitive_type = new int(0);
-    sphere_bboxes.back().primitive_id = new int;
-    *sphere_bboxes.back().primitive_id = sphere_bboxes.size()-1;
+    scene.add_mat_die(1.5);
+    scene.add_sphere(point3(0, 1, 0), 1.0, DIELECTRIC);
 
-    metals.emplace_back(color(0.7, 0.6, 0.5), 0.0);
-    spheres.emplace_back(point3(4, 1, 0), 1.0, METAL, 0);
-    sphere_bboxes.push_back(spheres.back().bounding_box());
-    sphere_bboxes.back().primitive_type = new int(0);
-    sphere_bboxes.back().primitive_id = new int;
-    *sphere_bboxes.back().primitive_id = sphere_bboxes.size()-1;
+    scene.add_mat_metal(color(0.7, 0.6, 0.5), 0.0);
+    scene.add_sphere(point3(4, 1, 0), 1.0, METAL);
 
-    // printf("%d %d", spheres.size(), materials.size());
-
-    primitives *objects;
-    cudaMallocManaged(&objects, sizeof(primitives));
-
-    new (objects) primitives(&spheres, nullptr, nullptr, nullptr);
-    if constexpr (std::is_same_v<T, bvh>)
-    {
-        new (world) bvh(sphere_bboxes);
-        world->p_objects = objects;
-    }
-    else
-    {
-        new (world) hittable_list(objects);
-    }
-
-
-    new (materials_arr) materials(&lambertians, &metals, &dielectrics, nullptr, nullptr);
+    scene.build<hit_method>(world, materials_arr);
 }
 #endif //SCENES_CUH

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <vector>
 
+//TODO: Manage Memory properly
 struct bvh {
     aabb* bboxes;
     uint32_t size;
@@ -14,31 +15,61 @@ struct bvh {
     bvh(std::vector<aabb>& objects)
     {
         std::vector<aabb> bvh_arr;
-
         auto bbox = aabb::empty;
+
+        std::vector<int> p_types;
+        std::vector<int> p_ids;
 
         for (auto object : objects)
         {
             bbox = aabb(bbox, object);
+            p_types.push_back(*object.primitive_type);
+            p_ids.push_back(*object.primitive_id);
         }
+
+        cudaMalloc(&bbox.primitive_type, objects.size() * sizeof(int));
+        cudaMemcpy(bbox.primitive_type, p_types.data(), objects.size() * sizeof(int), cudaMemcpyHostToDevice);
+        cudaMalloc(&bbox.primitive_id, objects.size() * sizeof(int));
+        cudaMemcpy(bbox.primitive_id, p_ids.data(), objects.size() * sizeof(int), cudaMemcpyHostToDevice);
+        bbox.num_primitives = p_types.size();
 
         bvh_arr.push_back(bbox);
 
-        std::vector<std::tuple<aabb, std::vector<aabb>>> queue;
-        queue.emplace_back(bbox, objects);
-        float min_cost = 0;
-        float cost_leaf = objects.size();
-        while (!queue.empty() && min_cost < cost_leaf)
+        std::vector<std::tuple<int, int, aabb, std::vector<aabb>>> queue;
+        queue.emplace_back(0, -1, bbox, objects);
+
+        while (!queue.empty())
         {
-            std::tuple<aabb, std::vector<aabb>> current = queue.back();
+            auto current = queue.back();
             queue.pop_back();
-            auto nodes = split(std::get<0>(current), std::get<1>(current), min_cost, cost_leaf);
+
+            int parent_id = std::get<0>(current);
+            int exit_id = std::get<1>(current);
+            aabb current_bbox = std::get<2>(current);
+            std::vector<aabb> current_objects = std::get<3>(current);
+
+            bvh_arr[parent_id].skip = exit_id;
+
+            real min_cost = 0;
+            real cost_leaf = current_objects.size();
+
+            auto nodes = split(current_bbox, current_objects, min_cost, cost_leaf);
+            if (min_cost >= cost_leaf || std::get<1>(nodes[0]).empty() || std::get<1>(nodes[1]).empty() || min_cost > cost_leaf)
+                continue;
+
+            int right_id = bvh_arr.size();
             bvh_arr.push_back(std::get<0>(nodes[0]));
+            int left_id = bvh_arr.size();
             bvh_arr.push_back(std::get<0>(nodes[1]));
-            queue.insert(queue.begin(), nodes.begin(), nodes.end());
+
+
+            bvh_arr[parent_id].left = left_id;
+            queue.emplace_back(right_id, exit_id, std::get<0>(nodes[0]), std::get<1>(nodes[0]));
+            queue.emplace_back(left_id, right_id, std::get<0>(nodes[1]), std::get<1>(nodes[1]));
         }
 
         size = bvh_arr.size();
+        printf("%d\n", size);
 
         cudaMalloc(&bboxes, size * sizeof(aabb));
         cudaMemcpy(bboxes, bvh_arr.data(), size * sizeof(aabb), cudaMemcpyHostToDevice);
@@ -113,7 +144,7 @@ struct bvh {
             }
             real sa_L = bboxL.surface_area();
             real sa_R = bboxR.surface_area();
-            real cost = 1 + (sa_L / sa_V)*(i+1) + (sa_R / sa_V)*(current.size()-i);
+            real cost = 1 + (sa_L / sa_V)* i + (sa_R / sa_V)*(current.size() - i);
             if (cost < min_cost)
             {
                 min_bboxL = bboxL;
@@ -130,23 +161,16 @@ struct bvh {
         bool hit_anything = false;
         auto closest_so_far = ray_t.max;
 
-        int i = 0;
-        char c = 0;
-        int stack[32];
-        stack[i++] = 0;
-        while (i < size && c < 2)
+        int current_node = 0;
+        while (current_node != -1)
         {
-            int current_node = stack[i--];
-            if (bboxes[current_node].hit(r, ray_t))
+            const aabb hit_box = bboxes[current_node];
+            if (hit_box.hit(r, ray_t))
             {
-                int x = 2 * current_node + 1;
-                if (x < size)
+                if (hit_box.left != -1)
                 {
-                    stack[++i] = 2 * current_node + 2;
-                    stack[++i] = 2 * current_node + 1;
-                }else
-                {
-                    aabb hit_box = bboxes[current_node];
+                    current_node = hit_box.left;
+                }else{
                     //NOTE: Only Spheres for now to test
                     for (int j = 0; j < hit_box.num_primitives; ++j) {
                         if (p_objects->d_spheres.d_primitives[hit_box.primitive_id[j]].hit(r, interval(ray_t.min, closest_so_far), temp_rec)) {
@@ -155,10 +179,13 @@ struct bvh {
                             rec = temp_rec;
                         }
                     }
+                    current_node = hit_box.skip;
                 }
+            }else
+            {
+                current_node = hit_box.skip;
             }
         }
-
         return hit_anything;
     }
 

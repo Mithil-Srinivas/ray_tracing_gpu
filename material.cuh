@@ -124,31 +124,31 @@ struct materials
         const std::vector<diffuse_light> *diffuse_lights,
         const std::vector<isotropic> *isotropics)
     {
-        if (lambertians)
+        if (!lambertians->empty())
         {
             lambertian_count = lambertians->size();
             cudaMalloc(&lambertian_mats, lambertian_count * sizeof(lambertian));
             cudaMemcpy(lambertian_mats, lambertians->data(), lambertian_count * sizeof(lambertian), cudaMemcpyHostToDevice);
         }
-        if (metals)
+        if (!metals->empty())
         {
             metal_count = metals->size();
             cudaMalloc(&metal_mats, metal_count * sizeof(metal));
             cudaMemcpy(metal_mats, metals->data(), metal_count * sizeof(metal), cudaMemcpyHostToDevice);
         }
-        if (dielectrics)
+        if (!dielectrics->empty())
         {
             dielectric_count = dielectrics->size();
             cudaMalloc(&dielectric_mats, dielectric_count * sizeof(dielectric));
             cudaMemcpy(dielectric_mats, dielectrics->data(), dielectric_count * sizeof(dielectric), cudaMemcpyHostToDevice);
         }
-        if (diffuse_lights)
+        if (!diffuse_lights->empty())
         {
             diffuse_light_count = diffuse_lights->size();
             cudaMalloc(&diffuse_light_mats, diffuse_light_count * sizeof(diffuse_light));
             cudaMemcpy(diffuse_light_mats, diffuse_lights->data(), diffuse_light_count * sizeof(diffuse_light), cudaMemcpyHostToDevice);
         }
-        if (isotropics)
+        if (!isotropics->empty())
         {
             isotropic_count = isotropics->size();
             cudaMalloc(&isotropic_mats, isotropic_count * sizeof(isotropic));

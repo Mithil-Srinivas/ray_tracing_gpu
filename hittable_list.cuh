@@ -38,21 +38,21 @@ struct primitives
     primitives(const std::vector<sphere> *spheres,
         const std::vector<quad> *quads,
         const std::vector<tri> *tris,
-        const std::vector<instance> *sphere_inst = nullptr,
-        const std::vector<instance> *quad_inst = nullptr,
-        const std::vector<instance> *tri_inst = nullptr)
+        const std::vector<instance> *sphere_inst,
+        const std::vector<instance> *quad_inst,
+        const std::vector<instance> *tri_inst)
     {
-        if (spheres)
+        if (!spheres->empty())
             d_spheres.add(spheres);
-        if (quads)
+        if (!quads->empty())
             d_quads.add(quads);
-        if (tris)
+        if (!tris->empty())
             d_tris.add(tris);
-        if (sphere_inst)
+        if (!sphere_inst->empty())
             d_sphere_inst.add(sphere_inst);
-        if (quad_inst)
+        if (!quad_inst->empty())
             d_quad_inst.add(quad_inst);
-        if (tri_inst)
+        if (!tri_inst->empty())
             d_tri_inst.add(tri_inst);
     }
 };

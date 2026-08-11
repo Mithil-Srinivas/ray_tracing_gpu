@@ -7,6 +7,8 @@
 struct aabb
 {
     interval x, y, z;
+    int left = -1;
+    int skip = -1;
     int* primitive_type;
     int* primitive_id;
     uint32_t num_primitives;

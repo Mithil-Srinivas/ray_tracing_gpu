@@ -35,13 +35,13 @@ int main(void)
     cudaMallocManaged(&x, width * height * sizeof(vec3));
     cudaMallocManaged(&cam, sizeof(camera));
 
-    static hit_method *world;
+    static hit_method* world;
     cudaMallocManaged(&world, sizeof(hit_method));
 
     static materials *materials_arr;
     cudaMallocManaged(&materials_arr, sizeof(materials));
 
-    bvh_test<hit_method>(cam, width, height, world, materials_arr, rando);
+    bouncing_spheres(cam, width, height, world, materials_arr, rando);
 
     dim3 block(16, 16);
     dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);

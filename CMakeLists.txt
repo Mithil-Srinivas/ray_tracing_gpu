@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 4.2)
 project(ray_tracing_gpu CUDA)
 
 set(CMAKE_CUDA_STANDARD 20)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
 
 add_executable(ray_tracing_gpu main.cu
         vec3.cuh
@@ -25,7 +23,7 @@ add_executable(ray_tracing_gpu main.cu
 
 target_compile_options(ray_tracing_gpu PRIVATE
 #        $<$<AND:$<COMPILE_LANGUAGE:CUDA>,$<CONFIG:Debug>>:-G>
-    $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo>
+    $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo --use_fast_math>
 )
 
 set_target_properties(ray_tracing_gpu PROPERTIES
