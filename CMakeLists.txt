@@ -23,7 +23,7 @@ add_executable(ray_tracing_gpu main.cu
 
 target_compile_options(ray_tracing_gpu PRIVATE
 #        $<$<AND:$<COMPILE_LANGUAGE:CUDA>,$<CONFIG:Debug>>:-G>
-    $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo --use_fast_math>
+    $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo --use_fast_math --maxrregcount=80>
 )
 
 set_target_properties(ray_tracing_gpu PROPERTIES

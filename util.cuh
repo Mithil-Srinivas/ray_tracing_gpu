@@ -104,4 +104,8 @@ public:
 #define QUAD 1
 #define TRI 2
 
+#define SPHERE_INST 3
+#define QUAD_INST 4
+#define TRI_INST 5
+
 #endif //UTIL_CUH

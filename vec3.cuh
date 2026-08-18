@@ -53,7 +53,7 @@ struct alignas(16) vec3
     }
 
     HD bool near_zero() const {
-        auto s = 1e-8;
+        auto s = 1e-8f;
         return (fabs(e[0]) < s) && (fabs(e[1]) < s) && (fabs(e[2]) < s);
     }
 
@@ -72,7 +72,7 @@ HD inline vec3 operator +(const vec3& u, const vec3& v) {
     return {u.e[0] + v.e[0], u.e[1] + v.e[1], u.e[2] + v.e[2]};
 }
 
-HD inline vec3 operator -(const vec3& u, const vec3& v) {
+HD inline vec3 operator -(const vec3 u, const vec3 v) {
     return {u.e[0] - v.e[0], u.e[1] - v.e[1], u.e[2] - v.e[2]};
 }
 
@@ -106,13 +106,20 @@ HD inline vec3 unit_vector(const vec3& v) {
 }
 
 HD inline vec3 random_unit_vector(rng &rand) {
-    while (true) {
-        auto p = vec3::random(rand, -1, 1);
-        auto lensq = p.length_squared();
-        if (1e-160 < lensq && lensq <= 1) {
-            return p * rsqrt(lensq);
-        }
-    }
+    // while (true) {
+    //     auto p = vec3::random(rand, -1, 1);
+    //     auto lensq = p.length_squared();
+    //     if (1e-160 < lensq && lensq <= 1) {
+    //         return p * rsqrt(lensq);
+    //     }
+    // }
+
+    real z = 2.0f  *rand.next_real(0, 1) - 1.0f;
+    real phi = 2.0f * pi * rand.next_real(0, 1);
+
+    real r = sqrt(1.0f - z * z);
+
+    return {r*cos(phi), r*sin(phi), z};
 }
 
 HD inline vec3 random_on_hemisphere(rng &rand, const vec3& normal) {

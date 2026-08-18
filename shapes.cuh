@@ -15,7 +15,7 @@ struct sphere {
 
     }
 
-    aabb bounding_box() const
+    aabb get_bounding_box() const
     {
         auto rvec = vec3(radius, radius, radius);
         return {center - rvec, center + rvec};

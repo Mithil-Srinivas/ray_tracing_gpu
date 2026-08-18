@@ -26,7 +26,7 @@ public:
         w = n / dot(n, n);
     }
 
-    aabb set_bounding_box() const
+    aabb get_bounding_box() const
     {
         auto bbox_diagonal1 = aabb(Q, Q + u + v);
         auto bbox_diagonal2 = aabb(Q + u, Q + v);
@@ -72,28 +72,12 @@ public:
         rec.v = b;
         return true;
     }
+
+    vec3 abs_offset(const point3& p) const
+    {
+        return p - Q;
+    }
 };
-
-inline std::vector<quad> box(const point3& a, const point3& b, int mat_type, int mat_id) {
-
-    std::vector<quad> sides;
-
-    auto min = point3(std::fmin(a.x(), b.x()), std::fmin(a.y(), b.y()), std::fmin(a.z(), b.z()));
-    auto max = point3(std::fmax(a.x(), b.x()), std::fmax(a.y(), b.y()), std::fmax(a.z(), b.z()));
-
-    auto dx = vec3(max.x() - min.x(), 0, 0);
-    auto dy = vec3(0, max.y() - min.y(), 0);
-    auto dz = vec3(0, 0, max.z() - min.z());
-
-    sides.emplace_back(point3(min.x(), min.y(), max.z()), dx, dy, mat_type, mat_id);
-    sides.emplace_back(point3(max.x(), min.y(), max.z()), -dz, dy, mat_type, mat_id);
-    sides.emplace_back(point3(max.x(), min.y(), min.z()), -dx, dy, mat_type, mat_id);
-    sides.emplace_back(point3(min.x(), min.y(), min.z()), dz, dy, mat_type, mat_id);
-    sides.emplace_back(point3(min.x(), max.y(), max.z()), dx, -dz, mat_type, mat_id);
-    sides.emplace_back(point3(min.x(), min.y(), min.z()), dx, dz, mat_type, mat_id);
-
-    return sides;
-}
 
 class tri{
     public:
@@ -103,7 +87,7 @@ class tri{
 
     tri(const point3& a, const point3& b, const point3& c, const int mat_type, const int mat_id) : a(a), b(b), c(c), mat_type(mat_type), mat_id(mat_id) {}
 
-    aabb bounding_box()
+    aabb get_bounding_box()
     {
         aabb b1 = aabb(a, b);
         aabb b2 = aabb(b, c);
@@ -151,43 +135,12 @@ class tri{
         rec.v = b;
         return true;
     }
+
+    vec3 abs_offset(const point3& p) const
+    {
+        return p - a;
+    }
 };
-
-std::vector<tri> obj(const std::string& obj_file, const int mat_type, const int mat_id, real scale = 1) {
-    std::vector<point3> pts;
-    std::vector<tri> object;
-
-    std::ifstream file(obj_file);
-    std::string line;
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << obj_file << std::endl;
-        return object;
-    }
-
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string prefix;
-        ss >> prefix;
-        if (prefix == "v") {
-            real x, y, z;
-            ss >> x >> y >> z;
-            point3 p(x, y, z);
-            p = p*scale;
-            pts.push_back(p);
-        }else if (prefix == "f") {
-            std::string v1, v2, v3;
-            ss >> v1 >> v2 >> v3;
-
-            int x = std::stoi(v1.substr(0, v1.find('/')));
-            int y = std::stoi(v2.substr(0, v2.find('/')));
-            int z = std::stoi(v3.substr(0, v3.find('/')));
-
-            object.emplace_back(pts[x-1], pts[y-1], pts[z-1], mat_type, mat_id);
-        }
-    }
-    return object;
-}
-
 
 struct instance
 {

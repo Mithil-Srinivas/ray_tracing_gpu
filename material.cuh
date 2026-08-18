@@ -4,8 +4,6 @@
 #include "util.cuh"
 #include "texture.cuh"
 
-//TODO: Implement Textures
-//PROFILE: color& vs color
 
 class lambertian{
 public:
@@ -20,7 +18,6 @@ public:
         attenuation = albedo;
         return true;
     }
-
 };
 
 class metal{

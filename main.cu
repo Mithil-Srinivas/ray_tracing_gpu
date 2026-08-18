@@ -6,7 +6,7 @@
 #include "scenes.cuh"
 #include "util.cuh"
 
-__global__ void grad(vec3* out, int width, int height, hit_method *world, materials *mat_arr, camera *cam)
+__global__ void grad(vec3* out, int width, int height, const hit_method* __restrict__ world, materials *mat_arr, camera *cam)
 {
     int x = ((blockIdx.x * blockDim.x) + threadIdx.x);
     int y = ((blockIdx.y * blockDim.y) + threadIdx.y);

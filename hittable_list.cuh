@@ -68,7 +68,7 @@ struct primitives
         }
     }
 
-    HD void inline instance_hit(primitives &objects, instance *instances, uint32_t max, const ray &r, interval &ray_t, bool &hit_anything, real &closest_so_far, hit_record &temp_rec, hit_record &rec, int prim_type)
+    HD void inline instance_hit(primitives objects, instance *instances, uint32_t max, const ray &r, interval &ray_t, bool &hit_anything, real &closest_so_far, hit_record &temp_rec, hit_record &rec, int prim_type)
     {
         for (int i = 0; i < max; ++i)
         {
@@ -128,8 +128,8 @@ struct primitives
 
 class hittable_list{
 public:
-    primitives &objects;
-    hittable_list(primitives *objects) : objects(*objects) {}
+    primitives objects;
+    hittable_list(primitives objects) : objects(objects) {}
 
     HD bool hit(const ray& r, interval ray_t, hit_record& rec) const
     {

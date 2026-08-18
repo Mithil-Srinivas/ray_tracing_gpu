@@ -3,14 +3,61 @@
 #include "util.cuh"
 
 
-//TODO: Remove array of primitives and use sorted objects instead
+struct node_aabb
+{
+    interval x, y, z;
+    int left = -1;
+    int skip = -1;
+
+    node_aabb(interval x, interval y, interval z, int left, int skip) : x(x), y(y), z(z), left(left), skip(skip) {};
+
+    HD const interval& axis_interval(int n) const{
+        if (n == 1) return y;
+        if (n == 2) return z;
+        return x;
+    }
+
+    HD bool hit(const ray& r, interval ray_t) const{
+        const point3 ray_orig = r.origin();
+        const vec3 ray_dir = r.direction();
+
+        for (int axis = 0; axis < 3; axis++){
+            const interval& ax = axis_interval(axis);
+            const real adinv = 1.0f / ray_dir[axis];
+
+            auto t0 = (ax.min - ray_orig[axis]) * adinv;
+            auto t1 = (ax.max - ray_orig[axis]) * adinv;
+
+            if (t0 < t1){
+                if (t0 > ray_t.min) ray_t.min = t0;
+                if (t1 < ray_t.max) ray_t.max = t1;
+            }else{
+                if (t1 > ray_t.min) ray_t.min = t1;
+                if (t0 < ray_t.max) ray_t.max = t0;
+            }
+
+            if (ray_t.max <= ray_t.min)
+                return false;
+        }
+        return true;
+    }
+};
+
+struct payload
+{
+    uint32_t* primitive_id = nullptr;
+    uint32_t num_primitives = 0;
+
+    payload(uint32_t* primitive_id, uint32_t num_primitives) : primitive_id(primitive_id), num_primitives(num_primitives){};
+};
+
+
 struct aabb
 {
     interval x, y, z;
     int left = -1;
     int skip = -1;
-    int* primitive_type;
-    int* primitive_id;
+    uint32_t* primitive_id;
     uint32_t num_primitives;
 
     aabb() {}
@@ -103,7 +150,18 @@ struct aabb
     {
         return z.size()/2;
     }
+
+    node_aabb get_node_aabb() const
+    {
+        return {x, y, z, left, skip};
+    }
+
+    payload get_payload() const
+    {
+        return {primitive_id, num_primitives};
+    }
 };
+
 
 inline const aabb aabb::empty = aabb(interval::empty, interval::empty, interval::empty);
 inline const aabb aabb::universe = aabb(interval::universe, interval::universe, interval::universe);

@@ -9,7 +9,7 @@
 #include "material.cuh"
 
 //TODO: Needs a lot of work
-
+//TODO: Remove unnecessary variables
 class camera {
     public:
     real aspect_ratio = 16.0 / 9.0;
@@ -97,7 +97,6 @@ class camera {
     std::atomic<int> tile{0};
 
     HD color ray_color(const ray& r, const hit_method *world, materials *mat_arr, rng& rand) {
-        color final_color;
         color throughput{1, 1, 1};
         ray current = r;
 
@@ -116,22 +115,21 @@ class camera {
             case LAMBERTIAN:
                 {
                     if (!mat_arr->lambertian_mats[rec.mat_id].scatter(current, rec,attenuation ,scattered, rand)) {
-                        return final_color;
+                        return throughput;
                     }
-
                     break;
                 }
             case METAL :
                 {
                     if (!mat_arr->metal_mats[rec.mat_id].scatter(current, rec,attenuation ,scattered, rand)) {
-                        return final_color;
+                        return throughput;
                     }
                     break;
                 }
             case DIELECTRIC :
                 {
                     if (!mat_arr->dielectric_mats[rec.mat_id].scatter(current, rec,attenuation ,scattered, rand)) {
-                        return final_color;
+                        return throughput;
                     }
                     break;
                 }
@@ -143,7 +141,7 @@ class camera {
             case ISOTROPIC :
                 {
                     if (!mat_arr->isotropic_mats[rec.mat_id].scatter(current, rec,attenuation ,scattered, rand)) {
-                        return final_color;
+                        return throughput;
                     }
                     break;
                 }
@@ -151,7 +149,7 @@ class camera {
             throughput = throughput * attenuation;
             current = scattered;
         }
-        return final_color;
+        return throughput;
     }
 
     HD ray get_ray(int i, int j, rng &rand) const {
